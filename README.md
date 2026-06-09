@@ -221,7 +221,7 @@ Participants should only use images with appropriate consent. Images used during
 If you use or adapt these materials, please cite the workshop repository as:
 
 ```text
-Çakır, D. Hugging Face 101 & Data Analysis Workshop. NEST × BAU AI Club Workshop Materials.
+Cakir, D. Hugging Face 101 & Data Analysis Workshop. NEST × BAU AI Club Workshop Materials.
 ```
 
 ## License
