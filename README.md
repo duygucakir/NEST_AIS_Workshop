@@ -26,6 +26,7 @@ workshop/
 │   └── 04_sentiment_facial_expression_gradio.ipynb
 │
 └── notebooks_unfinished/
+│   ├── photos/
     ├── 01_data_preprocessing_ml.ipynb
     ├── 02_sentiment_analysis_hf.ipynb
     ├── 03_facial_expression_analysis_hf.ipynb
