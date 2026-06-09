@@ -5,7 +5,7 @@ import cv2
 import gradio as gr
 import numpy as np
 from PIL import Image
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, TFAutoModelForSequenceClassification, AutoImageProcessor, TFAutoModelForImageClassification
 
 
 TEXT_MODEL_NAME = os.getenv("TEXT_MODEL_NAME", "duygucakir/emotion-analysis-distilbert")
@@ -23,17 +23,24 @@ random_texts = [
 
 def load_text_pipeline():
     try:
-        return pipeline("text-classification", model=TEXT_MODEL_NAME)
+        tokenizer = AutoTokenizer.from_pretrained(TEXT_MODEL_NAME)
+        # Load text model (assuming it's a native TF model, 'from_tf=True' is not needed here)
+        model = TFAutoModelForSequenceClassification.from_pretrained(TEXT_MODEL_NAME)
+        return pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
     except Exception as e:
         print(f"Warning: Could not load custom text model '{TEXT_MODEL_NAME}'. Reason: {e}")
+        # Fallback to a generic sentiment analysis model if the custom one fails
+        return pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 
 
 def load_face_pipeline():
     try:
-        return pipeline("image-classification", model=FACE_MODEL_NAME)
+        # Let pipeline handle loading model and processor automatically
+        return pipeline('image-classification', model=FACE_MODEL_NAME)
     except Exception as e:
         print(f"Warning: Could not load face model '{FACE_MODEL_NAME}'. Reason: {e}")
-        raise
+        # Fallback to a generic image classification model if the custom one fails
+        return pipeline("image-classification", model="google/vit-base-patch16-224")
 
 
 sentiment_pipe = load_text_pipeline()
@@ -129,11 +136,9 @@ def finish_processing(results, faces, img_cv):
 
         summary = f"""
 ### Aggregated Results ({total} faces processed)
-
 | Metric | Value | Meaning |
 | --- | --- | --- |
 {rows}
-
 **Note:** These values are model-based approximations for classroom demonstration. They should not be interpreted as reliable psychological or behavioral assessment.
 """
 
@@ -243,9 +248,7 @@ with gr.Blocks() as demo:
     gr.Markdown(
         """
 **Disclaimer:** This demo is for educational purposes only. Facial expression analysis does not determine a person’s true emotional state.
-
 Uploaded images and text inputs should not be used for psychological, medical, legal, educational assessment, recruitment, security, or other high-stakes decisions.
-
 **Önemli Uyarı:** Gönüllü katılımcılar fotoğraf ve kısa metin girdisi sağlar. Uygulama her kişi için facial expression label ve text sentiment label üretir. Sonuçlar yalnızca demo sonunda aggregate edilir; bireysel sonuçlar değerlendirme veya karar verme amacıyla kullanılmaz.
 """
     )
